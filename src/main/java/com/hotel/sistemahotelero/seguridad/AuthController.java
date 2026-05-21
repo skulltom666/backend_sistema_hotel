@@ -1,6 +1,5 @@
 package com.hotel.sistemahotelero.seguridad;
 
-import com.hotel.sistemahotelero.administracion.Hotel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,7 +59,7 @@ public class AuthController {
         nuevoUsuario.setEmail(request.getEmail());
         nuevoUsuario.setDni(request.getDni());
         nuevoUsuario.setPassword(passwordEncoder.encode(request.getPassword()));
-        nuevoUsuario.setRol(request.getRol());
+                nuevoUsuario.setRol(Rol.ADMINISTRADOR);
 
         // Si en el registro se envían hoteles, los asignamos
         if (request.getHoteles() != null) {

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,26 +37,30 @@ public class HabitacionController {
 
     // 2. CREAR NUEVA HABITACIÓN
     @PostMapping
-    public Habitacion crearHabitacion(@RequestBody Habitacion nuevaHabitacion) {
+    public ResponseEntity<?> crearHabitacion(@RequestBody Habitacion nuevaHabitacion) {
         Long idBuscado = nuevaHabitacion.getHotelIdRecibido();
 
-        if (idBuscado == null) {
-            throw new RuntimeException("ID de hotel no proporcionado");
+        if (idBuscado == null || idBuscado <= 0) {
+            return ResponseEntity.badRequest().body("ID de hotel no proporcionado o inválido");
         }
 
         Hotel hotel = hotelRepository.findById(idBuscado)
-                .orElseThrow(() -> new RuntimeException("Hotel no existe"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel no existe"));
+
+        System.out.println("🏨 Creando habitación para hotelId=" + idBuscado);
 
         long cantidadActual = habitacionRepository.countByHotelId(hotel.getId());
 
         if (cantidadActual >= hotel.getLimiteHabitaciones()) {
-            throw new RuntimeException("Límite alcanzado para el plan " + hotel.getPlan());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Límite alcanzado para el plan " + hotel.getPlan());
         }
 
         nuevaHabitacion.setHotel(hotel);
         nuevaHabitacion.setEstadoActual(EstadoHabitacion.DISPONIBLE);
 
-        return habitacionRepository.save(nuevaHabitacion);
+        Habitacion guardada = habitacionRepository.save(nuevaHabitacion);
+        return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
     }
 
     // 3. ELIMINAR UNA HABITACIÓN

@@ -36,6 +36,8 @@ public class HotelController {
     // 2. Registrar el hotel vinculado al usuario del Token
     @PostMapping("/registrar")
     public ResponseEntity<Hotel> registrarHotel(@RequestBody Hotel hotel) {
+        System.out.println("🏨 /api/hoteles/registrar recibido para: " + hotel.getNombre());
+
         // 🚨 IMPORTANTE: SecurityContextHolder solo funciona si Angular envía el TOKEN
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
