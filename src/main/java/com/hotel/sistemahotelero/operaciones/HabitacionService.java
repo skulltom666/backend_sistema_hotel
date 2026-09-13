@@ -74,7 +74,8 @@ public class HabitacionService {
         Habitacion guardada = habitacionRepository.save(habitacion);
 
         // 5. Trazabilidad
-        eventPublisher.publishEvent(new EstadoHabitacionEvent(this, habitacion.getId(), estadoAnterior, EstadoHabitacion.OCUPADO));
+        eventPublisher.publishEvent(
+                new EstadoHabitacionEvent(this, habitacion.getId(), estadoAnterior, EstadoHabitacion.OCUPADO));
 
         return guardada;
     }
@@ -111,22 +112,4 @@ public class HabitacionService {
         return guardada;
     }
 
-    /**
-     * MÉTODO SIMPLE (Opcional): Por si tienes procesos que ya conocen el ID numérico del huésped
-     */
-    @Transactional
-    public Habitacion realizarCheckIn(Long habitacionId, Long huespedId) {
-        Habitacion habitacion = habitacionRepository.findById(habitacionId).orElseThrow();
-        // Aquí sí usamos findById porque recibimos un Long huespedId
-        Huesped huesped = huespedRepository.findById(huespedId).orElseThrow();
-
-        EstadoHabitacion anterior = habitacion.getEstadoActual();
-        habitacion.setEstadoActual(EstadoHabitacion.OCUPADO);
-        habitacion.setHuespedActual(huesped);
-        habitacion.setFechaCheckIn(LocalDateTime.now());
-
-        Habitacion guardada = habitacionRepository.save(habitacion);
-        eventPublisher.publishEvent(new EstadoHabitacionEvent(this, habitacionId, anterior, EstadoHabitacion.OCUPADO));
-        return guardada;
-    }
 }
