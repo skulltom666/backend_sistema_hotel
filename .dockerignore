@@ -1,0 +1,7 @@
+target/
+.git
+.idea
+*.iml
+.env
+Test Results*.html
+HELP.md
